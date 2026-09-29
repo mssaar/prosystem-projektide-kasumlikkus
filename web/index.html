@@ -9,7 +9,7 @@
   <meta name="description" content="Projektide kasumlikkus koos palgakuluga. Failid töödeldakse ainult brauseris.">
   <title>Projektide kasumlikkus</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23284f7a'/%3E%3Cpath d='M4 12V8M8 12V4M12 12V6' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
   <svg class="ikoonid" aria-hidden="true" focusable="false">
@@ -27,10 +27,12 @@
   <header class="pais">
     <div class="sisu">
       <h1>Projektide kasumlikkus</h1>
-      <p class="privaatsus">
-        <svg class="ikoon" aria-hidden="true"><use href="#i-lukk"/></svg>
-        Failid töödeldakse ainult sinu brauseris — midagi ei laeta üles.
-      </p>
+      <div class="info privaatsus">
+        <button type="button" class="ikoon-nupp info-nupp" aria-label="Privaatsus" aria-expanded="false" aria-controls="info-privaatsus" aria-describedby="info-privaatsus">
+          <svg class="ikoon" aria-hidden="true"><use href="#i-lukk"/></svg>
+        </button>
+        <p class="info-sisu" id="info-privaatsus">Failid töödeldakse ainult sinu brauseris — midagi ei laeta üles.</p>
+      </div>
     </div>
   </header>
 
@@ -312,6 +314,6 @@
   </footer>
 
   <script src="vendor/xlsx.full.min.js"></script>
-  <script type="module" src="js/app.js?v=2"></script>
+  <script type="module" src="js/app.js?v=3"></script>
 </body>
 </html>

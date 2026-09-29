@@ -97,10 +97,10 @@ p { margin: 0; }
 /* ---------- Päis ---------- */
 
 .pais { border-bottom: 1px solid var(--joon); background: var(--kaart); }
-.pais .sisu { padding-block: 22px 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+.pais .sisu { padding-block: 22px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 h1 { font-size: 1.5rem; font-weight: 650; letter-spacing: -0.01em; }
-.privaatsus { display: inline-flex; align-items: center; gap: 8px; color: var(--tekst-2); font-size: 0.9rem; }
-.privaatsus .ikoon { color: var(--ok); width: 1.1em; height: 1.1em; }
+.privaatsus .info-nupp { color: var(--ok); }
+.privaatsus .info-sisu { color: var(--tekst-2); }
 
 main.sisu { padding-block: 28px 48px; display: grid; gap: 32px; }
 
@@ -135,13 +135,14 @@ h2 { font-size: 1.15rem; font-weight: 650; }
 .lohistus-ikoon { color: var(--aktsent); width: 1.4rem; height: 1.4rem; margin-bottom: 6px; }
 .lohistus-nimi { font-weight: 600; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-/* Kirjeldus (kust faili saada) peidetud info-nupu taha: hover/fookus arvutis, klikk telefonis. */
+/* Info-nupu taga olev tekst: hover/fookus arvutis, klikk telefonis. */
 .ala { position: relative; }
-.info { position: absolute; top: 8px; right: 8px; z-index: 5; }
+.info { position: relative; z-index: 5; }
+.ala > .info { position: absolute; top: 8px; right: 8px; }
 .info-nupp { color: var(--tekst-2); }
 .info-nupp:hover, .info-nupp[aria-expanded="true"] { background: var(--aktsent-pind); color: var(--aktsent); }
 .info-nupp:focus-visible { outline: 2px solid var(--fookus); outline-offset: 1px; }
-.lohistus-kirjeldus {
+.info-sisu {
   display: none;
   position: absolute; top: 100%; right: 0;
   width: max-content; max-width: min(320px, calc(100vw - 32px));
@@ -151,11 +152,11 @@ h2 { font-size: 1.15rem; font-weight: 650; }
   color: var(--tekst); font-size: 0.85rem; line-height: 1.45; overflow-wrap: anywhere;
 }
 /* Nähtamatu sild nupu ja paneeli vahel, et hover ei katkeks. */
-.lohistus-kirjeldus::before { content: ""; position: absolute; inset: -8px 0 100% 0; }
-.info-nupp[aria-expanded="true"] + .lohistus-kirjeldus,
-.info-nupp:focus-visible + .lohistus-kirjeldus { display: block; }
+.info-sisu::before { content: ""; position: absolute; inset: -8px 0 100% 0; }
+.info-nupp[aria-expanded="true"] + .info-sisu,
+.info-nupp:focus-visible + .info-sisu { display: block; }
 @media (hover: hover) {
-  .info:hover .lohistus-kirjeldus { display: block; }
+  .info:hover .info-sisu { display: block; }
 }
 .lohistus-tegevus { margin-top: 8px; font-size: 0.85rem; color: var(--tekst-2); }
 .lohistus-tegevus u { color: var(--aktsent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
@@ -461,7 +462,7 @@ h2.paneel-pealkiri { font-size: 1.15rem; font-weight: 650; }
   .lohistus { padding: 12px 58px 12px 14px; grid-template-columns: 1fr auto; column-gap: 12px; }
   .lohistus > span { grid-column: 1; }
   .lohistus-ikoon { grid-column: 2; grid-row: 1 / 3; align-self: center; margin: 0; }
-  .info { top: 6px; right: 6px; }
+  .ala > .info { top: 6px; right: 6px; }
   .lohistus-tegevus { margin-top: 4px; }
   #ekspordi { width: 100%; }
 }
