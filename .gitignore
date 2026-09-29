@@ -1,0 +1,20 @@
+# Andmed EI TOHI kunagi repos olla (palgad on konfidentsiaalsed)
+*.xlsx
+*.xls
+*.csv
+~$*
+
+# R / RStudio / Quarto
+.Rhistory
+.RData
+.Rproj.user/
+.quarto/
+*_files/
+analyys/*.html
+
+# IDE / OS / Node
+.idea/
+.vscode/
+node_modules/
+Thumbs.db
+.DS_Store

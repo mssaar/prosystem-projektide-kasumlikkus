@@ -1,0 +1,458 @@
+/* Projektide kasumlikkus — töövahend raamatupidajale.
+   Suund: rahulik kontrolltöö leht. Jahe neutraalne pind, tindisinine aktsent ainult tegevustel ja valikul,
+   hoiatus merevaigukollane, tulu/kulu kahe eristuva tooniga. Numbrid alati tabulaarsed ja paremale joondatud. */
+
+:root {
+  color-scheme: light;
+  --pind: oklch(0.975 0.004 250);
+  --pind-2: oklch(0.955 0.006 250);
+  --kaart: oklch(0.995 0.002 250);
+  --joon: oklch(0.88 0.008 250);
+  --joon-tugev: oklch(0.78 0.012 250);
+  --tekst: oklch(0.24 0.02 255);
+  --tekst-2: oklch(0.44 0.018 255);
+  --aktsent: oklch(0.44 0.11 255);
+  --aktsent-hover: oklch(0.38 0.11 255);
+  --aktsent-pind: oklch(0.94 0.025 255);
+  --aktsent-tekst: oklch(0.99 0 0);
+  --hoiatus: oklch(0.5 0.11 70);
+  --hoiatus-pind: oklch(0.955 0.045 85);
+  --hoiatus-joon: oklch(0.8 0.1 80);
+  --viga: oklch(0.5 0.17 27);
+  --viga-pind: oklch(0.96 0.025 25);
+  --ok: oklch(0.48 0.09 160);
+  --tulu: oklch(0.58 0.1 170);
+  --kulu: oklch(0.62 0.12 45);
+  --kulu-tekst: oklch(0.5 0.12 45);
+  --fookus: oklch(0.55 0.16 255);
+  --vari: 0 1px 2px oklch(0.3 0.02 255 / 0.06), 0 2px 8px oklch(0.3 0.02 255 / 0.05);
+
+  --r: 8px;
+  --r-vaike: 5px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --kiirus: 160ms;
+  --leevendus: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --pind: oklch(0.19 0.012 255);
+    --pind-2: oklch(0.225 0.014 255);
+    --kaart: oklch(0.235 0.014 255);
+    --joon: oklch(0.34 0.016 255);
+    --joon-tugev: oklch(0.45 0.02 255);
+    --tekst: oklch(0.93 0.008 255);
+    --tekst-2: oklch(0.75 0.014 255);
+    --aktsent: oklch(0.74 0.11 255);
+    --aktsent-hover: oklch(0.8 0.1 255);
+    --aktsent-pind: oklch(0.3 0.045 255);
+    --aktsent-tekst: oklch(0.2 0.03 255);
+    --hoiatus: oklch(0.82 0.12 80);
+    --hoiatus-pind: oklch(0.29 0.045 75);
+    --hoiatus-joon: oklch(0.52 0.09 75);
+    --viga: oklch(0.75 0.13 25);
+    --viga-pind: oklch(0.29 0.05 25);
+    --ok: oklch(0.76 0.1 160);
+    --tulu: oklch(0.68 0.1 170);
+    --kulu: oklch(0.7 0.12 50);
+    --kulu-tekst: oklch(0.78 0.11 50);
+    --fookus: oklch(0.75 0.13 255);
+    --vari: 0 1px 2px oklch(0 0 0 / 0.3), 0 2px 10px oklch(0 0 0 / 0.2);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--pind);
+  color: var(--tekst);
+  font: 400 1rem/1.5 var(--font);
+  font-variant-numeric: tabular-nums;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--aktsent-pind); color: var(--tekst); }
+input, textarea, select { caret-color: var(--aktsent); }
+
+h1, h2, h3, h4, h5 { margin: 0; line-height: 1.25; text-wrap: balance; }
+p { margin: 0; }
+
+.sisu { width: min(100% - 32px, 1200px); margin-inline: auto; }
+
+.ikoonid { position: absolute; width: 0; height: 0; overflow: hidden; }
+.ikoon { width: 1.25em; height: 1.25em; flex: none; }
+.ikoon-vaike { width: 1em; height: 1em; }
+
+.sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+:focus-visible { outline: 2px solid var(--fookus); outline-offset: 2px; border-radius: var(--r-vaike); }
+
+/* ---------- Päis ---------- */
+
+.pais { border-bottom: 1px solid var(--joon); background: var(--kaart); }
+.pais .sisu { padding-block: 22px 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+h1 { font-size: 1.5rem; font-weight: 650; letter-spacing: -0.01em; }
+.privaatsus { display: inline-flex; align-items: center; gap: 8px; color: var(--tekst-2); font-size: 0.9rem; }
+.privaatsus .ikoon { color: var(--ok); width: 1.1em; height: 1.1em; }
+
+main.sisu { padding-block: 28px 48px; display: grid; gap: 32px; }
+
+.samm { display: grid; gap: 14px; }
+.sammu-pais { display: grid; gap: 4px; }
+h2 { font-size: 1.15rem; font-weight: 650; }
+.vihje { color: var(--tekst-2); font-size: 0.875rem; }
+.vihje-viga { color: var(--viga); }
+
+/* ---------- Lohistusalad ---------- */
+
+.alad { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.ala { display: grid; grid-row: span 2; grid-template-rows: subgrid; gap: 8px; min-width: 0; }
+
+.lohistus {
+  position: relative;
+  display: grid; justify-items: start; align-content: start; gap: 2px;
+  padding: 16px 16px 14px;
+  border: 1.5px dashed var(--joon-tugev);
+  border-radius: var(--r);
+  background: var(--kaart);
+  cursor: pointer;
+  transition: border-color var(--kiirus) var(--leevendus), background-color var(--kiirus) var(--leevendus);
+}
+.lohistus:hover { border-color: var(--aktsent); }
+.lohistus:has(.peidetud-sisend:focus-visible) { outline: 2px solid var(--fookus); outline-offset: 2px; }
+.lohistus.lohistamas { border-style: solid; border-color: var(--aktsent); background: var(--aktsent-pind); }
+.lohistus.on-faile { border-style: solid; border-color: var(--joon); }
+.lohistus.on-faile:hover { border-color: var(--aktsent); }
+
+.peidetud-sisend { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 0; }
+.lohistus-ikoon { color: var(--aktsent); width: 1.4rem; height: 1.4rem; margin-bottom: 6px; }
+.lohistus-nimi { font-weight: 600; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lohistus-kirjeldus { color: var(--tekst-2); font-size: 0.85rem; }
+.lohistus-tegevus { margin-top: 8px; font-size: 0.85rem; color: var(--tekst-2); }
+.lohistus-tegevus u { color: var(--aktsent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+.silt {
+  display: inline-block; padding: 1px 7px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em;
+  background: var(--pind-2); color: var(--tekst-2); border: 1px solid var(--joon);
+}
+.silt-uus { background: var(--hoiatus-pind); color: var(--hoiatus); border-color: var(--hoiatus-joon); }
+
+.faililoend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; align-content: start; }
+.faililoend:empty { display: none; }
+.fail {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 6px 7px 12px;
+  border: 1px solid var(--joon); border-radius: var(--r-vaike);
+  background: var(--kaart);
+  min-width: 0;
+}
+.fail-info { display: grid; min-width: 0; flex: 1; }
+.fail-nimi { font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere; line-height: 1.35; }
+.fail-meta { font-size: 0.8rem; color: var(--tekst-2); display: flex; gap: 6px; align-items: flex-start; }
+.fail-meta .ikoon { margin-top: 0.2em; }
+.fail-laeb .fail-meta { color: var(--aktsent); }
+.fail-viga { border-color: color-mix(in oklch, var(--viga) 45%, var(--joon)); background: var(--viga-pind); }
+.fail-viga .fail-meta { color: var(--viga); }
+.fail-teade {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 7px 12px; border-radius: var(--r-vaike);
+  background: var(--hoiatus-pind); border: 1px solid var(--hoiatus-joon);
+  font-size: 0.8rem; overflow-wrap: anywhere;
+}
+.fail-teade .ikoon { color: var(--hoiatus); margin-top: 0.2em; flex: none; }
+
+.ikoon-nupp {
+  display: inline-grid; place-items: center; flex: none;
+  width: 32px; height: 32px; padding: 0;
+  border: 0; border-radius: var(--r-vaike);
+  background: transparent; color: var(--tekst-2); cursor: pointer;
+}
+.ikoon-nupp:hover { background: var(--pind-2); color: var(--tekst); }
+.ikoon-nupp .ikoon { width: 18px; height: 18px; }
+
+/* ---------- Nupud ja väljad ---------- */
+
+.nupp {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 8px 16px;
+  border-radius: var(--r-vaike); border: 1px solid transparent;
+  font: 600 0.9375rem/1.2 var(--font);
+  cursor: pointer;
+  transition: background-color var(--kiirus) var(--leevendus), border-color var(--kiirus) var(--leevendus), color var(--kiirus) var(--leevendus);
+}
+.nupp-esmane { background: var(--aktsent); color: var(--aktsent-tekst); min-width: 140px; }
+.nupp-esmane:hover:not(:disabled) { background: var(--aktsent-hover); }
+.nupp-esmane:disabled { background: var(--pind-2); color: var(--tekst-2); border-color: var(--joon); cursor: not-allowed; }
+.nupp-teisene { background: var(--kaart); color: var(--tekst); border-color: var(--joon-tugev); }
+.nupp-teisene:hover:not(:disabled) { border-color: var(--aktsent); color: var(--aktsent); }
+.nupp-teisene:disabled { color: var(--tekst-2); border-color: var(--joon); cursor: not-allowed; }
+.nupp-vaike { min-height: 32px; padding: 4px 12px; font-size: 0.85rem; }
+.nupp .ikoon { width: 1.1em; height: 1.1em; }
+
+input[type="text"], input[type="search"], input[type="number"], input[type="month"], select, textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--joon-tugev); border-radius: var(--r-vaike);
+  background: var(--kaart); color: var(--tekst);
+  font: 400 0.9375rem/1.4 var(--font);
+  font-variant-numeric: tabular-nums;
+}
+textarea { resize: vertical; min-height: 96px; }
+input:hover, select:hover, textarea:hover { border-color: var(--tekst-2); }
+input[aria-invalid] { border-color: var(--viga); }
+input[type="checkbox"] { accent-color: var(--aktsent); width: 16px; height: 16px; margin: 0; flex: none; }
+
+.valja-silt { display: block; font-size: 0.85rem; font-weight: 550; margin-bottom: 4px; }
+.valja-viga { color: var(--viga); font-size: 0.85rem; }
+.vali { min-width: 0; }
+.valjad-reas { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 220px)); gap: 12px 16px; align-items: end; }
+.valjad-reas .vihje, .valjad-reas .valja-viga { grid-column: 1 / -1; }
+
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.linnukesed { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2px 16px; }
+.linnuke { display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-radius: var(--r-vaike); cursor: pointer; font-size: 0.9rem; }
+.linnuke:hover { background: var(--pind-2); }
+
+/* ---------- Paneelid (details) ---------- */
+
+.paneelid { display: grid; gap: 8px; }
+.aegunud .paneelid, .aegunud #tulemused-kirjeldus { opacity: 0.55; transition: opacity var(--kiirus) var(--leevendus); }
+
+.paneel {
+  border: 1px solid var(--joon);
+  border-radius: var(--r);
+  background: var(--kaart);
+  box-shadow: var(--vari);
+  min-width: 0;
+}
+.paneel > summary {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--r);
+}
+.paneel > summary::-webkit-details-marker, .alampaneel > summary::-webkit-details-marker { display: none; }
+.paneel > summary:hover { background: var(--pind-2); }
+.paneel[open] > summary { border-bottom: 1px solid var(--joon); border-radius: var(--r) var(--r) 0 0; }
+
+.avaja { color: var(--tekst-2); width: 1.1rem; height: 1.1rem; transition: transform var(--kiirus) var(--leevendus); }
+details[open] > summary > .avaja { transform: rotate(90deg); }
+
+.paneel-pealkiri { flex: 1; min-width: 0; font-size: 1rem; font-weight: 600; }
+h2.paneel-pealkiri { font-size: 1.15rem; font-weight: 650; }
+
+.mark {
+  flex: none; max-width: 55%;
+  padding: 2px 10px; border-radius: 999px;
+  background: var(--pind-2); border: 1px solid var(--joon);
+  color: var(--tekst-2);
+  font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.paneel.on-hoiatus > summary .mark { background: var(--hoiatus-pind); color: var(--hoiatus); border-color: var(--hoiatus-joon); }
+.paneel.on-hoiatus > summary .paneel-pealkiri::before {
+  content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--hoiatus); margin-right: 10px; vertical-align: 0.12em;
+}
+
+.paneel-sisu { padding: 16px; display: grid; gap: 14px; min-width: 0; }
+.paneel-sisu h4 { font-size: 0.95rem; font-weight: 600; margin-top: 6px; }
+.selgitus { color: var(--tekst-2); font-size: 0.9rem; max-width: 75ch; }
+
+.seaded > summary { padding-block: 15px; }
+.alampaneel { border-top: 1px solid var(--joon); }
+.alampaneel:last-of-type { border-bottom: 1px solid var(--joon); }
+.alampaneel > summary {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 4px; cursor: pointer; list-style: none; border-radius: var(--r-vaike);
+}
+.alampaneel > summary:hover { background: var(--pind-2); }
+.alampaneel > summary .paneel-pealkiri { font-weight: 550; font-size: 0.95rem; }
+.alampaneel .mark { font-weight: 500; }
+.alampaneel-sisu { padding: 4px 4px 16px 30px; display: grid; gap: 10px; min-width: 0; }
+#taasta { justify-self: start; }
+
+.tabel.alias-tabel { width: 100%; max-width: 560px; }
+.tabel.alias-tabel td, .tabel.alias-tabel th { padding: 4px 8px 4px 0; border: 0; background: none; }
+.tabel.alias-tabel th { font-size: 0.8rem; color: var(--tekst-2); }
+.alias-tabel input { min-width: 0; }
+.veerg-nupp { width: 40px; }
+#lisa-alias { justify-self: start; }
+
+/* ---------- Arvuta ---------- */
+
+.arvuta-rida { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+
+/* ---------- Tulemused ---------- */
+
+.tulemused-pais { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+.tulemused-pais > div { display: grid; gap: 4px; }
+
+.teade { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border-radius: var(--r-vaike); font-size: 0.9rem; }
+.teade .ikoon { margin-top: 0.15em; }
+.teade-viga { background: var(--viga-pind); color: var(--viga); border: 1px solid color-mix(in oklch, var(--viga) 40%, transparent); }
+.teade-hoiatus { background: var(--hoiatus-pind); color: var(--tekst); border: 1px solid var(--hoiatus-joon); }
+.teade-hoiatus .ikoon { color: var(--hoiatus); }
+[hidden] { display: none !important; }
+
+.tyhi { display: flex; gap: 8px; align-items: center; color: var(--tekst-2); font-size: 0.9rem; }
+.tyhi .ikoon { color: var(--ok); }
+
+.kv-veerud { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 40px; }
+.kv-grupp { display: grid; gap: 6px; align-content: start; }
+.kv-grupp h4 { margin: 0; color: var(--tekst-2); font-size: 0.85rem; font-weight: 600; }
+.kv { margin: 0; display: grid; }
+.kv-rida { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--joon); }
+.kv-rida:last-child { border-bottom: 0; }
+.kv-rida dt { color: var(--tekst); }
+.kv-rida dd { margin: 0; font-weight: 600; text-align: right; white-space: nowrap; }
+.kv-hoiatus dd { color: var(--hoiatus); }
+
+.hoiatuste-loend { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 0.9rem; }
+
+/* ---------- Tabelid ---------- */
+
+.tabel-plokk { display: grid; gap: 8px; min-width: 0; }
+.tabel-kerimine {
+  overflow: auto; max-height: 34rem; min-width: 0;
+  border: 1px solid var(--joon); border-radius: var(--r-vaike);
+  scrollbar-color: var(--joon-tugev) transparent; scrollbar-width: thin;
+}
+.tabel-kerimine:focus-visible { outline-offset: 0; }
+.tabel { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.tabel th, .tabel td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--joon); vertical-align: top; }
+.tabel thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--pind-2); color: var(--tekst-2);
+  font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+}
+.tabel tbody tr:last-child td { border-bottom: 0; }
+.tabel tbody tr:hover td { background: color-mix(in oklch, var(--pind-2) 60%, transparent); }
+.tabel .kuu { white-space: nowrap; }
+.tabel .nr { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tabel-jalus { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.alias-kerimine { overflow-x: auto; min-width: 0; }
+
+.negatiivne { color: var(--viga); }
+.hoiatus-tekst, .madal, .korge { color: var(--hoiatus); font-weight: 600; }
+.kulu-tekst { color: var(--kulu-tekst); }
+.rida-hoiatus td { background: var(--hoiatus-pind); }
+
+/* ---------- Kasumlikkus ---------- */
+
+.kasum-juhtimine { display: grid; grid-template-columns: minmax(180px, 240px) minmax(0, 360px); gap: 12px 16px; }
+.kasum-paigutus { display: grid; grid-template-columns: minmax(260px, 380px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.projektid-veerg { display: grid; gap: 6px; min-width: 0; }
+
+.projektid {
+  list-style: none; margin: 0; padding: 4px;
+  max-height: 36rem; overflow: auto;
+  border: 1px solid var(--joon); border-radius: var(--r-vaike);
+  scrollbar-color: var(--joon-tugev) transparent; scrollbar-width: thin;
+}
+.projekt {
+  width: 100%;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0 12px;
+  padding: 7px 10px;
+  border: 0; border-radius: var(--r-vaike);
+  background: transparent; color: var(--tekst); text-align: left; cursor: pointer;
+  font: inherit; font-size: 0.875rem;
+}
+.projekt:hover { background: var(--pind-2); }
+.projekt[aria-pressed="true"] { background: var(--aktsent-pind); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--aktsent) 35%, transparent); }
+.projekt-nimi { grid-row: 1 / 3; display: grid; min-width: 0; }
+.projekt-kood { font-weight: 600; }
+.projekt-nimetus { color: var(--tekst-2); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.projekt-kasum { font-weight: 600; text-align: right; }
+.projekt-marginaal { color: var(--tekst-2); font-size: 0.8rem; text-align: right; }
+.tyhi-rida { padding: 10px; color: var(--tekst-2); font-size: 0.875rem; }
+
+.projekt-detail { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.detail-pealkiri { font-size: 1.05rem; font-weight: 600; }
+.detail-pealkiri .projekt-kood { color: var(--aktsent); }
+.naitajad { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); border: 1px solid var(--joon); border-radius: var(--r-vaike); overflow: hidden; }
+.naitaja { padding: 9px 12px; border-right: 1px solid var(--joon); border-bottom: 1px solid var(--joon); margin: 0 -1px -1px 0; }
+.naitaja dt { font-size: 0.78rem; color: var(--tekst-2); }
+.naitaja dd { margin: 0; font-weight: 650; font-size: 0.98rem; text-align: left; }
+.naitaja.positiivne dd { color: var(--ok); }
+.naitaja.negatiivne dd { color: var(--viga); }
+
+.graafik-pais { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 4px; }
+.graafik-pais h5 { font-size: 0.9rem; font-weight: 600; }
+.legend { display: flex; gap: 14px; font-size: 0.8rem; color: var(--tekst-2); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.legend-tulu::before { background: var(--tulu); }
+.legend-kulu::before { background: var(--kulu); }
+
+.graafik { min-width: 0; overflow: hidden; display: grid; gap: 10px; justify-items: start; }
+.graafik svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+.graafik-rida { cursor: pointer; outline: none; }
+.rida-taust { fill: transparent; transition: fill var(--kiirus) var(--leevendus); }
+.graafik-rida:hover .rida-taust { fill: var(--pind-2); }
+.graafik-rida.valitud .rida-taust { fill: var(--aktsent-pind); }
+.graafik-rida:focus-visible .rida-taust { stroke: var(--fookus); stroke-width: 2; }
+.konto-nimi { fill: var(--tekst); font: 500 13px var(--font); }
+.riba-vaartus { fill: var(--tekst-2); font: 500 12px var(--font); font-variant-numeric: tabular-nums; }
+.riba-tulu { fill: var(--tulu); }
+.riba-kulu { fill: var(--kulu); }
+
+.tehingud-pealkiri { font-size: 0.9rem; font-weight: 600; margin-top: 6px; }
+#tehingud { display: grid; gap: 8px; min-width: 0; }
+
+/* ---------- Jalus ---------- */
+
+.jalus { padding-block: 0 32px; color: var(--tekst-2); font-size: 0.8rem; }
+
+/* ---------- Kitsas ekraan ---------- */
+
+@media (max-width: 760px) {
+  .kasum-paigutus { grid-template-columns: minmax(0, 1fr); }
+  .projektid { max-height: 20rem; }
+  .kasum-juhtimine { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 480px) {
+  main.sisu { padding-block: 20px 40px; gap: 26px; }
+  .pais .sisu { padding-block: 16px 14px; }
+  h1 { font-size: 1.3rem; }
+  .paneel > summary { padding: 12px; gap: 8px; flex-wrap: wrap; }
+  .paneel > summary .mark { max-width: 100%; margin-left: 28px; }
+  .paneel-sisu { padding: 12px; }
+  .alampaneel-sisu { padding-left: 4px; }
+  .alampaneel > summary { flex-wrap: wrap; }
+  .alampaneel > summary .mark { margin-left: 28px; }
+  .valjad-reas { grid-template-columns: minmax(0, 1fr); }
+  .arvuta-rida .nupp-esmane { width: 100%; }
+  .ikoon-nupp { width: 44px; height: 44px; }
+  .linnuke { padding-block: 10px; }
+  .projekt { padding-block: 10px; }
+  .alad { gap: 10px; }
+  .lohistus { padding: 12px 14px; grid-template-columns: 1fr auto; column-gap: 12px; }
+  .lohistus > span { grid-column: 1; }
+  .lohistus-ikoon { grid-column: 2; grid-row: 1 / 4; align-self: center; margin: 0; }
+  .lohistus-tegevus { margin-top: 4px; }
+  #ekspordi { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+@media print {
+  .lohistus, #seaded, .arvuta-rida, #ekspordi { display: none; }
+  .paneel { box-shadow: none; }
+}
+
+/* Seadete väljad ei pea venima üle kogu laiuse. */
+.tabel.alias-tabel td { vertical-align: middle; }
+#erandid-tekst { max-width: 480px; }
+#kontorimuster-tekst { max-width: 360px; }

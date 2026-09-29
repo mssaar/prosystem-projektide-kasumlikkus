@@ -1,0 +1,12 @@
+{
+  "name": "prosystem-projektide-kasumlikkus",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"web/tests/*.test.js\"",
+    "kontroll": "node tools/kontrolli-andmeid.mjs"
+  },
+  "devDependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}

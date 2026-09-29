@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="Projektide kasumlikkus koos palgakuluga. Failid töödeldakse ainult brauseris.">
+  <title>Projektide kasumlikkus</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23284f7a'/%3E%3Cpath d='M4 12V8M8 12V4M12 12V6' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="ikoonid" aria-hidden="true" focusable="false">
+    <symbol id="i-ules" viewBox="0 0 24 24"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sulge" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11m0-11l-11 11" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+    <symbol id="i-hoiatus" viewBox="0 0 24 24"><path d="M12 4.5 2.8 19.5h18.4L12 4.5Zm0 5.5v4.5m0 2.5v.01" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-viga" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 7.5v5.5m0 3v.01" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-nool" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-alla" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lukk" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.75"/></symbol>
+  </svg>
+
+  <header class="pais">
+    <div class="sisu">
+      <h1>Projektide kasumlikkus</h1>
+      <p class="privaatsus">
+        <svg class="ikoon" aria-hidden="true"><use href="#i-lukk"/></svg>
+        Failid töödeldakse ainult sinu brauseris — midagi ei laeta üles.
+      </p>
+    </div>
+  </header>
+
+  <main class="sisu">
+    <p id="teegi-viga" class="teade teade-viga" role="alert" hidden>
+      Exceli lugemise teeki (SheetJS) ei õnnestunud laadida. Laadi leht uuesti.
+    </p>
+
+    <section id="failid" class="samm" aria-labelledby="failid-pealkiri">
+      <div class="sammu-pais">
+        <h2 id="failid-pealkiri">Failid</h2>
+        <p class="vihje">Lohista Exceli failid õigesse alasse või vali need klõpsuga. Igasse alasse võib panna mitu faili.</p>
+      </div>
+      <div class="alad">
+        <div class="ala">
+          <label class="lohistus" data-liik="kuludTulud">
+            <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
+            <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
+            <span class="lohistus-nimi">Kulud ja tulud</span>
+            <span class="lohistus-kirjeldus">Dimensiooni projekti detailne aruanne</span>
+            <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
+          </label>
+          <ul class="faililoend" data-liik="kuludTulud" aria-label="Kulude ja tulude failid"></ul>
+        </div>
+        <div class="ala">
+          <label class="lohistus" data-liik="tooaeg">
+            <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
+            <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
+            <span class="lohistus-nimi">Tööaeg</span>
+            <span class="lohistus-kirjeldus">Tunnid projektide ja töötajate kaupa</span>
+            <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
+          </label>
+          <ul class="faililoend" data-liik="tooaeg" aria-label="Tööaja failid"></ul>
+        </div>
+        <div class="ala">
+          <label class="lohistus" data-liik="palgad">
+            <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
+            <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
+            <span class="lohistus-nimi">Palgad</span>
+            <span class="lohistus-kirjeldus">Tasude ja tundide aruanne, iga ettevõte eraldi</span>
+            <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
+          </label>
+          <ul class="faililoend" data-liik="palgad" aria-label="Palgafailid"></ul>
+        </div>
+        <div class="ala ala-valikuline">
+          <label class="lohistus" data-liik="kontroll">
+            <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
+            <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
+            <span class="lohistus-nimi">Palgafondi kontroll <span class="silt">valikuline</span></span>
+            <span class="lohistus-kirjeldus">PR-kannete summad kuude kaupa</span>
+            <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
+          </label>
+          <ul class="faililoend" data-liik="kontroll" aria-label="Kontrollfailid"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="samm" aria-labelledby="seaded-pealkiri">
+      <details id="seaded" class="paneel seaded">
+        <summary>
+          <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+          <h2 id="seaded-pealkiri" class="paneel-pealkiri">Seaded</h2>
+          <span class="mark" id="seaded-mark"></span>
+        </summary>
+        <div class="paneel-sisu">
+          <p class="vihje">Seaded salvestuvad selles brauseris. Muudatus arvutab tulemused kohe uuesti.</p>
+
+          <details id="erandid" class="alampaneel">
+            <summary>
+              <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+              <span class="paneel-pealkiri">Erandtöötajad</span>
+              <span class="mark" data-mark="erandid"></span>
+            </summary>
+            <div class="alampaneel-sisu">
+              <label class="valja-silt" for="erandid-tekst">Üks nimi reale, kujul „Eesnimi Perenimi“</label>
+              <textarea id="erandid-tekst" rows="4" spellcheck="false" aria-describedby="erandid-vihje"></textarea>
+              <p id="erandid-vihje" class="vihje">Erandtöötaja objektitunnid hinnatakse kuu tavatöötajate keskmise tunnihinnaga; ülejäänud palk läheb üldkulusse.</p>
+            </div>
+          </details>
+
+          <details id="aliased" class="alampaneel">
+            <summary>
+              <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+              <span class="paneel-pealkiri">Nimede aliased</span>
+              <span class="mark" data-mark="aliased"></span>
+            </summary>
+            <div class="alampaneel-sisu">
+              <p class="vihje">Parandab kirjavead: nimi veerus „Kust“ loetakse nimeks veerus „Kuhu“.</p>
+              <div class="alias-kerimine">
+                <table class="tabel alias-tabel">
+                  <thead><tr><th scope="col">Kust</th><th scope="col">Kuhu</th><th scope="col"><span class="sr">Eemalda</span></th></tr></thead>
+                  <tbody id="aliased-read"></tbody>
+                </table>
+              </div>
+              <button type="button" class="nupp nupp-teisene" id="lisa-alias">Lisa rida</button>
+            </div>
+          </details>
+
+          <details id="tasuliigid" class="alampaneel">
+            <summary>
+              <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+              <span class="paneel-pealkiri">Arvestatavad tasuliigid</span>
+              <span class="mark" data-mark="tasuliigid"></span>
+            </summary>
+            <div class="alampaneel-sisu">
+              <fieldset>
+                <legend class="sr">Arvestatavad tasuliigid</legend>
+                <div id="tasuliigid-loend" class="linnukesed"></div>
+              </fieldset>
+            </div>
+          </details>
+
+          <details id="periood" class="alampaneel">
+            <summary>
+              <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+              <span class="paneel-pealkiri">Periood</span>
+              <span class="mark" data-mark="periood"></span>
+            </summary>
+            <div class="alampaneel-sisu valjad-reas">
+              <div class="vali">
+                <label class="valja-silt" for="periood-algus">Alguskuu</label>
+                <input id="periood-algus" type="month">
+              </div>
+              <div class="vali">
+                <label class="valja-silt" for="periood-lopp">Lõppkuu</label>
+                <input id="periood-lopp" type="month">
+              </div>
+              <p class="vihje">Tühi väli = piirang puudub.</p>
+              <p class="valja-viga" id="periood-viga" role="alert" hidden></p>
+            </div>
+          </details>
+
+          <details id="kontorimuster" class="alampaneel">
+            <summary>
+              <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+              <span class="paneel-pealkiri">Kontori tuvastamise muster</span>
+              <span class="mark" data-mark="kontorimuster"></span>
+            </summary>
+            <div class="alampaneel-sisu">
+              <label class="valja-silt" for="kontorimuster-tekst">Regulaaravaldis projektikoodile (koodi osa enne „_“)</label>
+              <input id="kontorimuster-tekst" type="text" spellcheck="false" autocomplete="off" aria-describedby="kontorimuster-vihje">
+              <p id="kontorimuster-vihje" class="vihje">Kui kood mustrile ei vasta, loetakse tunnid Kontori tundideks.</p>
+              <p class="valja-viga" id="kontorimuster-viga" role="alert" hidden></p>
+            </div>
+          </details>
+
+          <details id="anomaalia" class="alampaneel">
+            <summary>
+              <svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg>
+              <span class="paneel-pealkiri">Tunnihinna anomaaliad</span>
+              <span class="mark" data-mark="anomaalia"></span>
+            </summary>
+            <div class="alampaneel-sisu valjad-reas">
+              <div class="vali">
+                <label class="valja-silt" for="anomaalia-alla">Märgi, kui alla (€/h)</label>
+                <input id="anomaalia-alla" type="number" inputmode="decimal" step="0.5" min="0">
+              </div>
+              <div class="vali">
+                <label class="valja-silt" for="anomaalia-ule">Märgi, kui üle (€/h)</label>
+                <input id="anomaalia-ule" type="number" inputmode="decimal" step="0.5" min="0">
+              </div>
+            </div>
+          </details>
+
+          <button type="button" class="nupp nupp-teisene" id="taasta">Taasta vaikeväärtused</button>
+        </div>
+      </details>
+    </section>
+
+    <section class="samm arvuta-rida" aria-label="Arvutamine">
+      <button type="button" class="nupp nupp-esmane" id="arvuta" disabled aria-describedby="arvuta-vihje">Arvuta</button>
+      <p id="arvuta-vihje" class="vihje" aria-live="polite"></p>
+    </section>
+
+    <section id="tulemused" class="samm" aria-labelledby="tulemused-pealkiri" hidden>
+      <div class="sammu-pais tulemused-pais">
+        <div>
+          <h2 id="tulemused-pealkiri">Tulemused</h2>
+          <p class="vihje" id="tulemused-kirjeldus"></p>
+        </div>
+        <button type="button" class="nupp nupp-teisene" id="ekspordi">
+          <svg class="ikoon" aria-hidden="true"><use href="#i-alla"/></svg>
+          Ekspordi Excel
+        </button>
+      </div>
+      <p id="arvutuse-viga" class="teade teade-viga" role="alert" hidden></p>
+      <p id="tulemused-aegunud" class="teade teade-hoiatus" role="status" hidden>
+        <svg class="ikoon ikoon-vaike" aria-hidden="true"><use href="#i-hoiatus"/></svg>
+        <span>Tulemused on aegunud — paranda failid ja arvuta uuesti. Kui failid on korras, arvutatakse automaatselt.</span>
+      </p>
+
+      <div class="paneelid">
+        <details class="paneel" data-paneel="kokkuvote">
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Kokkuvõte</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="hoiatused" data-hoiatus>
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Arvutuse hoiatused</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="ilmaPalgata" data-hoiatus>
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Projektid kulud-tuludes, mis ei saanud palgakulu</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="palkIlmaKuluTuluta" data-hoiatus>
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Palgakuluga projektid, mida kulud-tuludes pole</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="mittevasted" data-hoiatus>
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Nimede mittevasted</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="erandid">
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Erandtöötajad kuude kaupa</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="kuukontroll">
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Palgafondi kuukontroll</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="anomaaliad" data-hoiatus>
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Tunnihinna anomaaliad</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu"></div>
+        </details>
+        <details class="paneel" data-paneel="kasumlikkus">
+          <summary><svg class="ikoon avaja" aria-hidden="true"><use href="#i-nool"/></svg><h3 class="paneel-pealkiri">Projektide kasumlikkus</h3><span class="mark"></span></summary>
+          <div class="paneel-sisu">
+            <div class="kasum-juhtimine">
+              <div class="vali">
+                <label class="valja-silt" for="kasum-sort">Järjestus</label>
+                <select id="kasum-sort">
+                  <option value="kasum-kahanev">Kasum, suurim enne</option>
+                  <option value="kasum-kasvav">Kasum, väikseim enne</option>
+                  <option value="marginaal-kahanev">Marginaal, suurim enne</option>
+                  <option value="marginaal-kasvav">Marginaal, väikseim enne</option>
+                </select>
+              </div>
+              <div class="vali vali-lai">
+                <label class="valja-silt" for="kasum-otsi">Otsi koodi või nime järgi</label>
+                <input id="kasum-otsi" type="search" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+            <div class="kasum-paigutus">
+              <div class="projektid-veerg">
+                <p class="vihje" id="projektid-arv" aria-live="polite"></p>
+                <ol class="projektid" id="projektid" aria-label="Projektid"></ol>
+              </div>
+              <div class="projekt-detail" id="projekt-detail"></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <p id="teade" class="sr" role="status" aria-live="polite"></p>
+  </main>
+
+  <footer class="jalus sisu">
+    <p>Palgakulu = palgafaili veerg „kokku“ (bruto + sotsiaalmaks + töötuskindlustus), jaotatud kuu kaupa tööaja järgi.</p>
+  </footer>
+
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,716 @@
+---
+title: "ProSystem praktika"
+author: "Mark Sverker Saar"
+format: html
+editor: visual
+---
+
+## Sisendina ette antavate Exceli failide kirjeldus
+
+Periood: jaanuar 2024 - juuli 2026
+
+**Kulud ja Tulud**
+
+Failid, mis algavad nimega "ProSystem OÜ Dimensiooni Projekt detailne aruanne" sisaldavad järgnevaid parameetreid ehk veergusid:
+
+- Kood
+
+- Nimetus
+
+- Konto kood,
+
+- Konto nimetus
+
+- Klient/Tarnija
+
+- Dok. kuupäev
+
+- Dok. nr Kanne
+
+- Dimensiooni nimi
+
+- Kirjeldus
+
+- Kogus
+
+- Mõõtühik
+
+- Summa
+
+  Meid huvitab nendest vaid kood, mis tähistab projekti, nimetus ehk mille järgi saab pärast analüüsi lihtsamini tuvastada projekti. Sealjuures sisaldab nimetus ka projekti koodi, kuid koodi saab hõlpsamini kasutada kodeerimisel, mis on ka masinloetavam. Oluline on ka summa, mis on toote või teenuse maksumus eurodes, tegemist võib olla nii miinus, kui ka pluss märgiga, olevalt, kas tegemist oli sisse ostetud tootega või välja müüdud teenusega. Lisaks võtam veergudest D ja E, vastavalt parameetrid Konto nimetus ja Klient/Tarnija.
+
+**Tööaeg**
+
+Exceli failis, mis algab sõnaga Tööaeg on kuvatud tööajad, struktureerimiseks teeme df, kus on veerud projekti_kood, töötaja_nimi, tööaeg_tundides ja kuupäev. Algsest failist võta kõik read, kus on N veerus olemas tööaeg, mis on kujul nt 68:01:45. Teisenda see komakohaga tundideks. Töötaja nime saad veerust B. Kuna Projekti koodi veerus on enamus lahtrid tühjad, siis kui otsid töötaja ja tööajale projekti, siis võta lähim ülemine lahter, kus on projekti kood olemas ehk kõik read, kus on tööaeg olemas, peavad saama endale projekti koodi. Ning lahtrist koodi saamiseks tuleb eraldada \_ kasutades ning võtta esimene osa: kui see vastab mustrile `kontori_muster` (`^\p{L}{1,3}[0-9]` ehk 1–3 tähte ja kohe number, nt 'IK3' või 'E720'), on see projekti kood, muidu (nt „Tööd kontoris_…“ või „Avariitöö_…“) pannakse projekti_kood'iks 'Kontor'. Kuupäeva saad veerust C ning see on kujul nt 45617. Kõik ühe kuu, sama töötajaga ja sama objekti tööaja võib kokku liita.
+
+Töötaja nimest eemaldatakse liigsed tühikud (`str_squish`) ja rakendatakse nimede aliased; erandtöötajate ja aliaste võrdlus on tõstutundetu (võti `str_to_lower(str_squish(nimi), locale = "et")`), nagu veebikalkulaatoris. Lisaks leiame iga töötaja ühe kuu töötundide arvu kõikide projektide peale, millega ta on seotud olnud. Selle lisame eraldi dataframe'i iga_tootaja_kuu_tunnid.
+
+**Palgad**
+
+Failides, mis algavad fraasiga "Tasude ja tundide aruanne", võtame veerud **nime järgi** (mitte asukoha järgi, sest veergude järjekord võib failiti erineda): `isik` (kujul 'perenimi, eesnimi'), `tasuliik`, `arvestuskuu` (nt 202602) ja `kokku`.
+
+Palgakulu on veerg `kokku`, mis sisaldab juba sotsiaalmaksu ja töötuskindlustusmakset, seega ei korrutata seda enam ühegi koefitsiendiga. Sama isiku sama kuu kõik read (kõik tasuliigid) liidetakse kokku. Tasuliik ei mõjuta arvutust; kui failis on tundmatu tasuliik, antakse ainult hoiatus (tuntud tasuliikide loend on sama mis veebikalkulaatoris).
+
+**Palgafond ja PR-kanded.** Siin arvutatud palgafond (Σ `kokku` kuus) ei ole sama, mis raamatupidamise PR-kanded: PR-kannetes võivad olla ka teised kuud, perioodi- ja reservikanded ning muud korrektuurid, seega PR ≠ palgafond. Palgafond on see summa, mille me projektide vahel jaotame, ja see jaotatakse täielikult (vt allpool kontrolli). PR-kannetega võrdlemine on eraldi, valikuline kontroll.
+
+## **PALGAKULU - Lisame igale projektile palgakulu**
+
+Seejärel lisame kulud_tulud_df juurde iga objekti palgakulu, kõik arvutused tehakse **kuu kaupa**. Töötaja nimi tööaja df'is on 'Mari Tamm', palkade df'is 'TAMM, Mari' (teisendatakse eesti lokaadiga, sidekriipsuga nimes saab mõlemad osad suure algustähe, nt 'Anne-Liis'); nimede aliased (nt kirjaviga 'Nokilai Fomenko') rakendatakse nii palkadele kui tööajale.
+
+- **Tavatöötaja** (on palk ja on tunnid): tunnihind = kuu palgakulu / kuu kõik tunnid (ka Kontori tunnid). Objektitunnid × tunnihind lähevad otse objektile; Kontori tunnid × tunnihind lähevad üldkulu potti.
+- **Erandtöötajad** (nt juhatuse liikmed): objektitunnid hinnatakse selle kuu tavatöötajate keskmise tunnihinnaga (Σ palk / Σ tunnid). Nende palk miinus objektidele läinud osa (ülejääk) läheb üldkulu potti.
+- **Tunnideta palk** (palk on, tunde pole) läheb tervenisti üldkulu potti; **tunnid ilma palgata** ei anna kulu (kulu 0).
+- **Üldkulu pott** (Kontor + erandite ülejääk + tunnideta palk) jaotatakse selle kuu objektide vahel objektitundide osakaalu järgi.
+
+Kontrolliks peab iga kuu jaotatud palgakulu võrduma kuu palgafondiga (`stopifnot` täpsusega 0,01 €); kuud, kus objektitunde pole, jäävad jaotamata ja on kontrollist välja arvatud. Projekti kood tuvastatakse mustriga `kontori_muster` (kuni 3 tähte + number, nt 'IK2', 'M12'), kõik muu on 'Kontor'. Tulemus ühtib veebikalkulaatori (`web/js/calc.js`) arvutusega.
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(janitor)
+
+# ==========================================
+# SEADED
+# ==========================================
+
+andmete_kaust <- "../../prosystem-andmed"   # andmed väljaspool repot
+erandtootajad <- c("Veiko Venig", "Koit Roasto", "Allar Jõõts")
+nime_aliased  <- c("Nokilai Fomenko" = "Nikolai Fomenko")
+kontori_muster <- "^\\p{L}{1,3}[0-9]"   # projekti koodi kuju (nt 'IK2', 'M12'), muu on 'Kontor'
+
+# Nimede võti: tühikud normaliseeritud, tõstutundetu (nagu nimeVoti veebikalkulaatoris)
+nime_voti <- function(x) str_to_lower(str_squish(x), locale = "et")
+alias_votmed <- setNames(str_squish(unname(nime_aliased)), nime_voti(names(nime_aliased)))
+erand_votmed <- nime_voti(erandtootajad)
+rakenda_alias <- function(x) {
+  v <- nime_voti(x)
+  if_else(v %in% names(alias_votmed), unname(alias_votmed[v]), str_squish(x))
+}
+
+# ==========================================
+# 1. KULUD JA TULUD
+# ==========================================
+
+kulud_tulud_files <- list.files(
+  andmete_kaust,
+  pattern = "^ProSystem OÜ Dimensiooni Projekt detailne aruanne.*\\.xlsx$", 
+  full.names = TRUE
+)
+
+kulud_tulud_df <- map_df(kulud_tulud_files, ~read_excel(.x, col_types = "text")) %>%
+  select(
+    projekti_kood = Kood,
+    nimetus = Nimetus,
+    konto_nimetus = `Konto nimetus`,
+    klient_tarnija = `Klient/Tarnija`,
+    kuupaev_raw = `Dok. kuupäev`,
+    summa = Summa
+  ) %>%
+  mutate(
+    summa = as.numeric(summa),
+    # kuupäev on kujul 'pp.kk.aaaa' (või Exceli numbrina)
+    kuupaev = coalesce(
+      as.Date(kuupaev_raw, format = "%d.%m.%Y"),
+      as.Date(suppressWarnings(as.numeric(kuupaev_raw)), origin = "1899-12-30")
+    ),
+    kuu = format(kuupaev, "%Y%m")
+  ) %>%
+  select(-kuupaev_raw, -kuupaev)
+
+# ==========================================
+# 2. TÖÖAEG
+# ==========================================
+
+parse_hhmmss_to_hours <- function(time_str) {
+  if (is.na(time_str)) return(NA_real_)
+  parts <- as.numeric(strsplit(as.character(time_str), ":")[[1]])
+  if (length(parts) == 3) {
+    return(parts[1] + parts[2]/60 + parts[3]/3600)
+  } else if (length(parts) == 2) {
+    return(parts[1] + parts[2]/60)
+  } else {
+    # Exceli ajaväärtus (päeva murdosa, nt 0.0767) -> tunnid
+    return(as.numeric(time_str) * 24)
+  }
+}
+
+tooaeg_files <- list.files(andmete_kaust, pattern = "^Tööaeg.*\\.xlsx$", full.names = TRUE)
+tooaeg_raw <- map_df(tooaeg_files, ~read_excel(.x, col_names = FALSE, col_types = "text"))
+
+tooaeg_df <- tooaeg_raw %>%
+  select(
+    proj_kood_raw = 1,
+    tootaja_nimi = 2,
+    kuupaev_raw = 3,
+    tooaeg_raw = 14
+  ) %>%
+  mutate(
+    proj_kood_raw = str_trim(proj_kood_raw),
+    proj_kood_raw = if_else(proj_kood_raw == "" | is.na(proj_kood_raw), NA_character_, proj_kood_raw)
+  ) %>%
+  fill(proj_kood_raw, .direction = "down") %>%
+  filter(!is.na(kuupaev_raw) & str_trim(kuupaev_raw) != "") %>%
+  rowwise() %>%
+  mutate(
+    koodi_osa = str_split(proj_kood_raw, "_")[[1]][1],
+    projekti_kood = if (!is.na(koodi_osa) && str_detect(koodi_osa, regex(kontori_muster))) {
+      koodi_osa
+    } else {
+      "Kontor"
+    },
+    tootaja_nimi = rakenda_alias(str_squish(tootaja_nimi)),
+    tooaeg_tundides = parse_hhmmss_to_hours(tooaeg_raw),
+    kuupaev = as.Date(as.numeric(kuupaev_raw), origin = "1899-12-30")
+  ) %>%
+  ungroup() %>%
+  mutate(kuu = format(kuupaev, "%Y%m")) %>%
+  filter(!is.na(kuu), !is.na(tooaeg_tundides), !is.na(tootaja_nimi)) %>%   # päisearead ja tühjad read
+  select(projekti_kood, proj_kood_raw, tootaja_nimi, tooaeg_tundides, kuupaev, kuu)
+
+# Agregeerime ühe kuu, töötaja ja projekti tööaja
+tooaeg_koond <- tooaeg_df %>%
+  group_by(kuu, tootaja_nimi, projekti_kood, proj_kood_raw) %>%
+  summarise(
+    tooaeg_tundides = sum(tooaeg_tundides, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Iga töötaja kuu kogutunnid kõigi projektide peale
+iga_tootaja_kuu_tunnid <- tooaeg_df %>%
+  group_by(kuu, tootaja_nimi) %>%
+  summarise(
+    kuu_kogutunnid = sum(tooaeg_tundides, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Luuakse seose-tabel projekti_kood ja algse nimetuse (proj_kood_raw) vahel
+projekti_nimetuste_kaart <- tooaeg_df %>%
+  filter(projekti_kood != "Kontor") %>%
+  distinct(projekti_kood, proj_kood_raw)
+
+# ==========================================
+# 3. PALGAD
+# ==========================================
+
+palgad_files <- list.files(
+  andmete_kaust,
+  pattern = "^Tasude ja tundide aruanne.*\\.xlsx$",
+  full.names = TRUE
+)
+
+# Sama loend mis TEADAOLEVAD_TASULIIGID veebikalkulaatoris (web/js/calc.js)
+teadaolevad_tasuliigid <- c(
+  "Kuupalk", "Kombineeritud tasu", "Lepinguline tasu", "Lisatasu", "Põhipuhkuse tasu",
+  "Puhkusetasu kompensatsioon", "Tunnitasu", "Katkestatud põhipuhkuse tasaarveldus",
+  "Pikendatud puhkuse tasu", "Pikendatud puhkuse tasu kompensatsioon", "Juhatuse liikme tasu",
+  "Lepingu summa", "Koondamistasu", "Töövõimetuse hüvitis", "Autokompensatsioon",
+  "Autokompensatsioon (päevikuga)"
+)
+
+# Veerud valime NIME järgi (mitte asukoha järgi): failides võivad veerud olla erinevas järjekorras
+loe_palgad <- function(f) {
+  read_excel(f, col_types = "text") %>%
+    select(tootaja_raw = isik, tasuliik, kuu = arvestuskuu, kokku) %>%
+    mutate(kokku = as.numeric(kokku), kuu = str_trim(kuu)) %>%
+    filter(!is.na(kokku))
+}
+palgad_raw <- map_df(palgad_files, loe_palgad)
+
+# Tundmatu tasuliik → hoiatus (mitte stop), sest arvutus ei sõltu enam tasuliigist
+tundmatud_tasud <- setdiff(unique(palgad_raw$tasuliik), teadaolevad_tasuliigid)
+if (length(tundmatud_tasud) > 0) {
+  warning("Tundmatud tasuliigid: ", paste(tundmatud_tasud, collapse = ", "))
+}
+
+# 'TAMM, Mari' -> 'Mari Tamm'
+teisenda_nimi <- function(x) {
+  osad <- str_split_fixed(x, ",\\s*", 2)
+  if_else(osad[, 2] != "", str_to_title(paste(osad[, 2], osad[, 1]), locale = "et"), x)
+}
+
+# Palgakulu = veerg 'kokku' (sisaldab juba sotsmaksu ja töötuskindlustust), koefitsienti pole
+palgad_df <- palgad_raw %>%
+  mutate(tootaja_nimi = rakenda_alias(teisenda_nimi(str_squish(tootaja_raw)))) %>%
+  group_by(kuu, tootaja_nimi) %>%
+  summarise(kokku_palgakulu = sum(kokku), .groups = "drop")
+
+# ==========================================
+# 4. PALGAKULU JAOTAMINE KUU KAUPA
+# ==========================================
+
+# Töötaja kuu tunnid: kokku ja Kontori tunnid
+tunnid_isik <- tooaeg_df %>%
+  group_by(kuu, tootaja_nimi) %>%
+  summarise(
+    kokku_tunnid = sum(tooaeg_tundides, na.rm = TRUE),
+    kontori_tunnid = sum(tooaeg_tundides[projekti_kood == "Kontor"], na.rm = TRUE),
+    .groups = "drop"
+  )
+
+isikud <- full_join(palgad_df, tunnid_isik, by = c("kuu", "tootaja_nimi")) %>%
+  mutate(
+    erand = nime_voti(tootaja_nimi) %in% erand_votmed,
+    on_palk = !is.na(kokku_palgakulu),
+    kokku_palgakulu = replace_na(kokku_palgakulu, 0),
+    kokku_tunnid = replace_na(kokku_tunnid, 0),
+    kontori_tunnid = replace_na(kontori_tunnid, 0),
+    tyyp = case_when(
+      erand ~ "erand",
+      kokku_tunnid > 0 & on_palk ~ "tava",
+      kokku_tunnid > 0 ~ "palgata",
+      TRUE ~ "tunnideta"
+    )
+  ) %>%
+  filter(tyyp != "palgata")   # palgata tunnid: kulu 0
+
+tootaja_tunnihind <- isikud %>%
+  filter(tyyp == "tava") %>%
+  mutate(tunnihind = kokku_palgakulu / kokku_tunnid)
+
+# Tavatöötajate keskmine tunnihind kuus (erandtöötajatele)
+keskmine_kuu <- tootaja_tunnihind %>%
+  group_by(kuu) %>%
+  summarise(keskmine_tunnihind = sum(kokku_palgakulu) / sum(kokku_tunnid), .groups = "drop")
+
+objekti_tunnid <- tooaeg_koond %>% filter(projekti_kood != "Kontor")
+
+# Tavatöötaja otsene palgakulu objektidele
+otsene <- objekti_tunnid %>%
+  inner_join(tootaja_tunnihind %>% select(kuu, tootaja_nimi, tunnihind), by = c("kuu", "tootaja_nimi")) %>%
+  transmute(
+    kuu, projekti_kood, nimetus = proj_kood_raw, konto_nimetus = "Tööjõukulud",
+    klient_tarnija = paste("Palgakulu:", tootaja_nimi), summa = -tooaeg_tundides * tunnihind
+  )
+
+# Erandtöötajate objektitunnid keskmise tunnihinnaga
+erandi_obj <- objekti_tunnid %>%
+  filter(nime_voti(tootaja_nimi) %in% erand_votmed) %>%
+  inner_join(keskmine_kuu, by = "kuu") %>%
+  transmute(
+    kuu, projekti_kood, nimetus = proj_kood_raw, tootaja_nimi,
+    konto_nimetus = "Tööjõukulud (erand, keskmine tunnihind)",
+    klient_tarnija = paste("Palgakulu:", tootaja_nimi), summa = -tooaeg_tundides * keskmine_tunnihind
+  )
+
+# Erandtöötaja palk miinus objektidele läinud osa = ülejääk üldkulusse
+erandid_kuu <- isikud %>%
+  filter(tyyp == "erand") %>%
+  left_join(
+    erandi_obj %>% group_by(kuu, tootaja_nimi) %>% summarise(obj = -sum(summa), .groups = "drop"),
+    by = c("kuu", "tootaja_nimi")
+  ) %>%
+  mutate(obj = replace_na(obj, 0), ylejaak = kokku_palgakulu - obj)
+
+# ==========================================
+# 5. ÜLDKULU (KONTOR + ERANDID + TUNNIDETA) JAOTAMINE OBJEKTIDELE KUU KAUPA
+# ==========================================
+
+yldkulu_pott <- bind_rows(
+  tootaja_tunnihind %>% transmute(kuu, summa = kontori_tunnid * tunnihind),
+  erandid_kuu %>% transmute(kuu, summa = ylejaak),
+  isikud %>% filter(tyyp == "tunnideta") %>% transmute(kuu, summa = kokku_palgakulu)
+) %>%
+  group_by(kuu) %>%
+  summarise(pott = sum(summa), .groups = "drop")
+
+yldkulu_jaotus <- objekti_tunnid %>%
+  group_by(kuu, projekti_kood) %>%
+  summarise(h = sum(tooaeg_tundides), .groups = "drop_last") %>%
+  mutate(osakaal = h / sum(h)) %>%
+  ungroup() %>%
+  inner_join(yldkulu_pott, by = "kuu") %>%
+  left_join(
+    objekti_tunnid %>% distinct(projekti_kood, .keep_all = TRUE) %>% select(projekti_kood, proj_kood_raw),
+    by = "projekti_kood"
+  ) %>%
+  transmute(
+    kuu, projekti_kood, nimetus = proj_kood_raw, konto_nimetus = "Tööjõukulud (üldkulu jaotus)",
+    klient_tarnija = "Üldkulu jaotus", summa = -pott * osakaal
+  )
+
+projekti_palgakulu_jaotatud <- bind_rows(otsene, erandi_obj %>% select(-tootaja_nimi), yldkulu_jaotus)
+
+# Kontroll: iga kuu palgafond = objektidele jaotatud palgakulu
+# (kuud ilma objektitundideta jäävad jaotamata ega ole kontrollis)
+kuu_kontroll <- palgad_df %>%
+  group_by(kuu) %>%
+  summarise(palgafond = sum(kokku_palgakulu), .groups = "drop") %>%
+  left_join(
+    projekti_palgakulu_jaotatud %>% group_by(kuu) %>% summarise(jaotatud = -sum(summa), .groups = "drop"),
+    by = "kuu"
+  ) %>%
+  mutate(jaotatud = replace_na(jaotatud, 0), jaotamata = palgafond - jaotatud)
+stopifnot(all(abs(kuu_kontroll$jaotamata[kuu_kontroll$kuu %in% objekti_tunnid$kuu]) < 0.01))
+
+# ==========================================
+# 6. ÜHENDAMINE JA KONTROLLID
+# ==========================================
+
+palk_koodid <- unique(projekti_palgakulu_jaotatud$projekti_kood)
+kt_koodid <- unique(kulud_tulud_df$projekti_kood)
+
+puuduvad_kt_ist <- setdiff(palk_koodid, kt_koodid)
+puuduvad_palgast <- setdiff(kt_koodid, palk_koodid)
+
+if (length(puuduvad_kt_ist) > 0) {
+  warning(paste("HOIATUS: Järgmisi projekti koode palgaarvestusest EI LEITUD kulud_tulud failist:", paste(puuduvad_kt_ist, collapse = ", ")))
+}
+
+if (length(puuduvad_palgast) > 0) {
+  puuduvad_nimetused <- kulud_tulud_df %>%
+    filter(!is.na(projekti_kood) & projekti_kood %in% puuduvad_palgast) %>%
+    distinct(nimetus) %>%
+    pull(nimetus)
+  
+  if (length(puuduvad_nimetused) > 0) {
+    warning(paste("HOIATUS: Järgmised projektid kulud_tulud failist EI SAANUD palgakulu:\n", 
+                  paste(puuduvad_nimetused, collapse = "\n")))
+  }
+}
+
+# Lõplik kokkupandud tabel
+kulud_tulud_loplik <- kulud_tulud_df %>%
+  bind_rows(projekti_palgakulu_jaotatud)
+
+print(head(kulud_tulud_loplik))
+
+# ==========================================
+# PROJEKTIDE KOKKUVÕTE
+# ==========================================
+
+koik_projektid <- union(palk_koodid, kt_koodid)
+kokku_arv <- length(koik_projektid)
+
+tulemused <- tibble(projekti_kood = koik_projektid) %>%
+  mutate(
+    on_palk = projekti_kood %in% palk_koodid,
+    on_kt = projekti_kood %in% kt_koodid,
+    kategooria = case_when(
+      on_palk & on_kt  ~ "Mõlemad olemas (palk + kulu/tulu)",
+      !on_palk & on_kt ~ "Vaid kulud/tulud (palgakulu puudub)",
+      on_palk & !on_kt ~ "Vaid palgakulu (kulud/tulud puuduvad)",
+      TRUE             ~ "Puuduvad mõlemad"
+    )
+  ) %>%
+  count(kategooria) %>%
+  mutate(protsent = round((n / kokku_arv) * 100, 1))
+
+cat("Projektide koguarv kokku:", kokku_arv, "\n\n")
+print(tulemused)
+
+```
+
+## PROJEKTIDE NA-väärtuste KOKKUVÕTE
+
+```{r}
+#Kustuta need, kus kulud_tulud_loplik summa on NA
+na_arv_veergudes <- colSums(is.na(kulud_tulud_loplik))
+print("NA-väärtuste arv veergude kaupa:")
+print(na_arv_veergudes)
+
+kulud_tulud_loplik <- kulud_tulud_loplik %>% 
+  filter(!is.na(summa))
+```
+
+# ANDMETE GRAAFILINE PROJEKTSIOON
+
+```{r}
+library(shiny)
+library(plotly)
+
+ui <- fluidPage(
+  titlePanel("Projekti Kulude ja Tulude Ülevaade"),
+  sidebarLayout(
+    sidebarPanel(
+      # 1. Sorteerimise valik
+      selectInput("sort_kriteerium", "Sorteeri projektide järjekord:",
+                  choices = c(
+                    "Enim kasumlikud eespool (Summa €)" = "kasum_desc",
+                    "Enim kahjumlikud eespool (Summa €)" = "kasum_asc",
+                    "Kõrgeim kasumimarginaal eespool (%)" = "protsent_desc",
+                    "Madalaim kasumimarginaal eespool (%)" = "protsent_asc"
+                  )),
+      
+      # 2. Projekti valik
+      selectInput("projekt", "Vali projekt:", choices = NULL)
+    ),
+    
+    mainPanel(
+      uiOutput("kasumi_otsus"),
+      plotlyOutput("tulpdiagramm"),
+      hr(),
+      h4("Klikitud konto detailne vaade:"),
+      dataTableOutput("konto_detailid")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # Arvutame kõigi projektide koondnäitajad ja leiame projekti NINETUSE
+  projekti_koond_df <- reactive({
+    kulud_tulud_loplik %>%
+      group_by(projekti_kood) %>%
+      summarise(
+        # Võtame esimese mitte-NA nimetuse, mis pole "Kontori kulu jaotus"
+        projekti_nimetus = first(nimetus[nimetus != "Kontori kulu jaotus" & !is.na(nimetus)], default = projekti_kood[1]),
+        tulu_kokku = sum(summa[summa > 0], na.rm = TRUE),
+        kulu_kokku = abs(sum(summa[summa < 0], na.rm = TRUE)),
+        kasum = tulu_kokku - kulu_kokku,
+        kasum_pct = if_else(tulu_kokku > 0, (kasum / tulu_kokku) * 100, -100),
+        .groups = "drop"
+      )
+  })
+  
+  # Dünamilline rippmenüü sorteerimise põhjal
+  observe({
+    req(input$sort_kriteerium)
+    koond <- projekti_koond_df()
+    
+    koond_sorteeritud <- switch(input$sort_kriteerium,
+                                "kasum_desc"   = koond %>% arrange(desc(kasum)),
+                                "kasum_asc"    = koond %>% arrange(kasum),
+                                "protsent_desc"= koond %>% arrange(desc(kasum_pct)),
+                                "protsent_asc" = koond %>% arrange(kasum_pct)
+    )
+    
+    # Valikuväärtuseks jääb kood, aga kasutajale kuvatakse Projekti Nimetust
+    valikud <- koond_sorteeritud$projekti_kood
+    nimed <- sprintf("%s (Kasum: %.2f €, Marginaal: %.1f%%)", 
+                     koond_sorteeritud$projekti_nimetus, 
+                     koond_sorteeritud$kasum, 
+                     koond_sorteeritud$kasum_pct)
+    
+    names(valikud) <- nimed
+    
+    updateSelectInput(session, "projekt", choices = valikud)
+  })
+  
+  # Kasumlikkuse ülevaate tekst ja pealkiri Nimetusega
+  output$kasumi_otsus <- renderUI({
+    req(input$projekt)
+    p_info <- projekti_koond_df() %>% filter(projekti_kood == input$projekt)
+    
+    varv <- if_else(p_info$kasum >= 0, "green", "red")
+    staatus <- if_else(p_info$kasum >= 0, "KASUMLIK", "KAHJUMLIK")
+    
+    HTML(sprintf(
+      "<div style='background-color: #f8f9fa; padding: 12px; border-radius: 5px; border-left: 5px solid %s;'>
+         <h3 style='margin:0; color: %s;'>%s on %s</h3>
+         <p style='margin: 5px 0 0 0; font-size: 16px;'>
+           <b>Kasum/Kahjum:</b> %.2f € | <b>Tulu:</b> %.2f € | <b>Kulu:</b> %.2f € | <b>Kasumimarginaal:</b> %.1f%%
+         </p>
+       </div>", 
+      varv, varv, p_info$projekti_nimetus, staatus, p_info$kasum, p_info$tulu_kokku, p_info$kulu_kokku, p_info$kasum_pct
+    ))
+  })
+  
+  # Interaktiivne tulpdiagramm
+  output$tulpdiagramm <- renderPlotly({
+    req(input$projekt)
+    
+    p_data <- kulud_tulud_loplik %>%
+      filter(projekti_kood == input$projekt) %>%
+      mutate(
+        tyyp = if_else(summa >= 0, "Tulu", "Kulu"),
+        summa_abs = abs(summa)
+      )
+    
+    p <- ggplot(p_data, aes(x = tyyp, y = summa_abs, fill = konto_nimetus, key = konto_nimetus,
+                            text = paste("Konto:", konto_nimetus, 
+                                         "<br>Nimetus:", nimetus,
+                                         "<br>Summa:", round(summa_abs, 2), "€"))) +
+      geom_bar(stat = "identity", position = "stack") +
+      labs(x = "", y = "Summa (€)", fill = "Konto nimetus") +
+      theme_minimal()
+    
+    ggplotly(p, tooltip = "text", source = "projekti_graafik")
+  })
+  
+  # Klikitud konto tehingute tabel
+  output$konto_detailid <- renderDataTable({
+    click_data <- event_data("plotly_click", source = "projekti_graafik")
+    req(click_data)
+    
+    valitud_konto <- click_data$key
+    
+    kulud_tulud_loplik %>%
+      filter(projekti_kood == input$projekt, konto_nimetus == valitud_konto)
+  })
+}
+
+shinyApp(ui, server)
+```
+
+# **MASINÕPE - tuvastame kasumlikkuse tunnused**
+
+Andmete ettevalmistamine ja veergude nimede puhastamine
+
+```{r}
+library(tidytext)
+
+# 1. Arvutame projekti tasemel näitajad
+projekti_omadused <- kulud_tulud_loplik %>%
+  group_by(projekti_kood) %>%
+  summarise(
+    nimetus_tekst = first(nimetus[nimetus != "Kontori kulu jaotus" & !is.na(nimetus)], default = ""),
+    
+    # Finants- ja mahunäitajad
+    tulu_kokku = sum(summa[summa > 0], na.rm = TRUE),
+    kulu_kokku = abs(sum(summa[summa < 0], na.rm = TRUE)),
+    keskmine_tehingu_summa = mean(abs(summa), na.rm = TRUE),
+    tehingute_arv = n(),
+    
+    # Sihtmärgid
+    kasum = tulu_kokku - kulu_kokku,
+    kasumimarginaal = if_else(tulu_kokku > 0, (kasum / tulu_kokku) * 100, -100),
+    .groups = "drop"
+  )
+
+# 2. Eraldame sõnad nimetustest
+nimetuse_sonad <- projekti_omadused %>%
+  select(projekti_kood, nimetus_tekst) %>%
+  unnest_tokens(sona, nimetus_tekst) %>%
+  filter(nchar(sona) > 2, !str_detect(sona, "^[0-9]+$")) %>%
+  count(projekti_kood, sona) %>%
+  pivot_wider(names_from = sona, values_from = n, values_fill = 0, names_prefix = "sona_")
+
+# 3. Ühendame ja puhastame veergude nimed (eemaldab keelatud sümbolid)
+ml_andmed <- projekti_omadused %>%
+  left_join(nimetuse_sonad, by = "projekti_kood") %>%
+  mutate(across(starts_with("sona_"), ~replace_na(.x, 0))) %>%
+  select(-projekti_kood, -nimetus_tekst) %>%
+  clean_names()  # Puhastab kõik veergude nimed (asendab tühikud ja sümbolid allkriipsudega)
+```
+
+## Mudel 1 (Kasumi suurus eurodes) treenimine
+
+```{r}
+library(ranger)
+
+# Eemaldame otsesed tulu ja kulu summad ning marginaali
+ml_kasum_andmed <- ml_andmed %>% 
+  select(-tulu_kokku, -kulu_kokku, -kasumimarginaal)
+
+# Treenime juhumetsa (Random Forest) mudeli
+rf_kasum_suurus <- ranger(
+  formula = kasum ~ ., 
+  data = ml_kasum_andmed,
+  importance = "permutation"
+)
+```
+
+## Mudel 1 tulemuste visualiseerimine
+
+```{r}
+# Võtame mudelist tunnuste olulisused ja joonistame graafiku
+tunnuste_olulisus_df <- enframe(rf_kasum_suurus$variable.importance, name = "tunnus", value = "olulisus") %>%
+  slice_max(olulisus, n = 15)
+
+ggplot(tunnuste_olulisus_df, aes(x = reorder(tunnus, olulisus), y = olulisus)) +
+  geom_col(fill = "#4C72B0") +
+  coord_flip() +
+  labs(
+    title = "Top 15 olulisemat tegurit kasumi suuruse määramisel (€)",
+    x = "Tunnus / Sõna nimetuses",
+    y = "Olulisus (Permutation Importance)"
+  ) +
+  theme_minimal()
+```
+
+## Mudel 2 (Kasumimarginaal %) treenimine ja visualiseerimine
+
+```{r}
+# Valmistame ette andmed kasumimarginaali jaoks
+ml_marginaal_andmed <- ml_andmed %>% 
+  select(-tulu_kokku, -kulu_kokku, -kasum)
+
+# Treenime mudeli
+rf_marginaal <- ranger(
+  formula = kasumimarginaal ~ ., 
+  data = ml_marginaal_andmed,
+  importance = "permutation"
+)
+
+# Joonistame graafiku
+marginaali_olulisus_df <- enframe(rf_marginaal$variable.importance, name = "tunnus", value = "olulisus") %>%
+  slice_max(olulisus, n = 15)
+
+ggplot(marginaali_olulisus_df, aes(x = reorder(tunnus, olulisus), y = olulisus)) +
+  geom_col(fill = "#2CA02C") +
+  coord_flip() +
+  labs(
+    title = "Top 15 olulisemat tegurit kasumimarginaali määramisel (%)",
+    x = "Tunnus / Sõna nimetuses",
+    y = "Olulisus (Permutation Importance)"
+  ) +
+  theme_minimal()
+```
+
+# TESTIMISED
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(kableExtra)
+
+tootaja_tunnihind %>%
+  # 1. Filtreerime anomaaliad ja omistame tüübi: 1 = alla 10, 2 = üle 30
+  filter(tunnihind < 10 | tunnihind >= 30) %>%
+  mutate(
+    tyyp = ifelse(tunnihind < 10, 1, 2),
+    kuu = as.character(kuu)
+  ) %>%
+  # 2. Koostame risttabeli (lahtrisse tuleb tüübi number 1 või 2)
+  group_by(tootaja_nimi, kuu) %>%
+  summarise(tyyp = max(tyyp), .groups = "drop") %>%
+  pivot_wider(names_from = kuu, values_from = tyyp, values_fill = 0) %>%
+  # 3. Värvime lahtrid: 1 on roheline, 2 on punane
+  mutate(across(-tootaja_nimi, ~ cell_spec(.x, 
+                                           background = case_when(
+                                             .x == 1 ~ "#66bb6a", # roheline (tunnihind < 10)
+                                             .x == 2 ~ "#ef5350", # punane (tunnihind >= 30)
+                                             TRUE ~ "transparent"
+                                           ),
+                                           color = case_when(
+                                             .x %in% c(1, 2) ~ "#ffffff", # valge tekst värvilises kastis
+                                             TRUE ~ "inherit"
+                                           ),
+                                           bold = ifelse(.x %in% c(1, 2), TRUE, FALSE)))) %>%
+  kbl(caption = "Anomaaliad kuude ja töötajate lõikes (1 = alla 10 € [roheline], 2 = üle 30 € [punane])", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+
+
+
+# 3. Joonista vahemikutäpne ja ilus histogramm
+options(scipen = 999)
+
+hist(
+  tootaja_tunnihind$tunnihind,
+  col = "#4caf50",
+  border = "white",
+  main = "Tunnihindade jaotus (vahemikus 0-50 €)",
+  xlab = "Tunnihind (€)",
+  ylab = "Sagedus",
+  xlim = c(0, 50),                      # Keskendub reaalsele vahemikule
+  breaks = seq(0, max(tootaja_tunnihind$tunnihind, na.rm=TRUE) + 5, by = 2) # Tulpade laius 2€
+)
+```
+
+```{r}
+library(dplyr)
+
+palgakulu_kuupohiselt <- palgad_df %>%
+  group_by(kuu) %>%
+  summarise(
+    kokku_palgakulu = sum(kokku_palgakulu, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(kuu))
+
+# Vaata tulemust
+
+write.table(palgakulu_kuupohiselt, "clipboard", sep = "\t", row.names = FALSE, dec = ".")
+```
