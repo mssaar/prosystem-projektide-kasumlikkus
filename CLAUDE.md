@@ -46,5 +46,6 @@ Disain ja põhjendused: `docs/superpowers/specs/2026-09-29-projektide-kasumlikku
 - `web/js/parse.js` ja `web/js/calc.js` on puhtad funktsioonid (ei sõltu DOM-ist ega SheetJS-ist),
   sisendiks tabelid massiivide massiivina (`sheet_to_json(ws, {header: 1})` kuju). Hoia nii, et
   need jääksid Node'is testitavaks.
+- `styles.css`/`app.js` muutmisel suurenda `web/index.html`-is versiooni (`?v=N`), muidu brauseri vahemälu annab uue HTML-iga vana CSS-i.
 - UI tekstid ja muutujanimed eesti keeles, nagu R-koodis (`projekti_kood`, `tootaja_nimi`, `kuu`).
 - Kasutajale nähtav disain: kasuta `impeccable` skilli.
