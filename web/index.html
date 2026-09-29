@@ -20,6 +20,7 @@
     <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-nool" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-alla" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 11v5.5m0-9v.01" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
     <symbol id="i-lukk" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.75"/></symbol>
   </svg>
 
@@ -40,8 +41,7 @@
 
     <section id="failid" class="samm" aria-labelledby="failid-pealkiri">
       <div class="sammu-pais">
-        <h2 id="failid-pealkiri">Failid</h2>
-        <p class="vihje">Lohista Exceli failid õigesse alasse või vali need klõpsuga. Igasse alasse võib panna mitu faili.</p>
+        <h2 id="failid-pealkiri">Sisesta Failid (Seadeid pole vaja otseselt muuta)</h2>
       </div>
       <div class="alad">
         <div class="ala">
@@ -49,9 +49,14 @@
             <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
             <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
             <span class="lohistus-nimi">Kulud ja tulud</span>
-            <span class="lohistus-kirjeldus">Dimensiooni projekti detailne aruanne</span>
             <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
           </label>
+          <div class="info">
+            <button type="button" class="ikoon-nupp info-nupp" aria-label="Kust faili saada" aria-expanded="false" aria-controls="info-kuludTulud" aria-describedby="info-kuludTulud">
+              <svg class="ikoon" aria-hidden="true"><use href="#i-info"/></svg>
+            </button>
+            <p class="lohistus-kirjeldus info-sisu" id="info-kuludTulud">aktiva.merit.ee -> Finants -> Dimensioonide aruanded -> Dimensioonid: Projekt; Detailsus: Detailne -> Koosta aruanne (võimalik, et peab mitmes osas koostama aruannet, kui periood on üle u 7 kuu)</p>
+          </div>
           <ul class="faililoend" data-liik="kuludTulud" aria-label="Kulude ja tulude failid"></ul>
         </div>
         <div class="ala">
@@ -59,9 +64,14 @@
             <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
             <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
             <span class="lohistus-nimi">Tööaeg</span>
-            <span class="lohistus-kirjeldus">Tunnid projektide ja töötajate kaupa</span>
             <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
           </label>
+          <div class="info">
+            <button type="button" class="ikoon-nupp info-nupp" aria-label="Kust faili saada" aria-expanded="false" aria-controls="info-tooaeg" aria-describedby="info-tooaeg">
+              <svg class="ikoon" aria-hidden="true"><use href="#i-info"/></svg>
+            </button>
+            <p class="lohistus-kirjeldus info-sisu" id="info-tooaeg">Tunnid projektide ja töötajate kaupa Rematost</p>
+          </div>
           <ul class="faililoend" data-liik="tooaeg" aria-label="Tööaja failid"></ul>
         </div>
         <div class="ala">
@@ -69,21 +79,31 @@
             <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
             <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
             <span class="lohistus-nimi">Palgad</span>
-            <span class="lohistus-kirjeldus">Tasude ja tundide aruanne, iga ettevõte eraldi</span>
             <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
           </label>
+          <div class="info">
+            <button type="button" class="ikoon-nupp info-nupp" aria-label="Kust faili saada" aria-expanded="false" aria-controls="info-palgad" aria-describedby="info-palgad">
+              <svg class="ikoon" aria-hidden="true"><use href="#i-info"/></svg>
+            </button>
+            <p class="lohistus-kirjeldus info-sisu" id="info-palgad">Kõik ettevõtted eraldi -> palk.merit.ee -> Tasude arvestus -> Tasude ja tundide aruanne -> Koosta aruanne</p>
+          </div>
           <ul class="faililoend" data-liik="palgad" aria-label="Palgafailid"></ul>
         </div>
-        <div class="ala ala-valikuline">
+        <!-- <div class="ala ala-valikuline"> 
           <label class="lohistus" data-liik="kontroll">
             <input class="peidetud-sisend" type="file" accept=".xlsx,.xls" multiple>
             <svg class="ikoon lohistus-ikoon" aria-hidden="true"><use href="#i-ules"/></svg>
             <span class="lohistus-nimi">Palgafondi kontroll <span class="silt">valikuline</span></span>
-            <span class="lohistus-kirjeldus">PR-kannete summad kuude kaupa</span>
             <span class="lohistus-tegevus">Lohista siia või <u>vali failid</u></span>
           </label>
+          <div class="info">
+            <button type="button" class="ikoon-nupp info-nupp" aria-label="Kust faili saada" aria-expanded="false" aria-controls="info-kontroll" aria-describedby="info-kontroll">
+              <svg class="ikoon" aria-hidden="true"><use href="#i-info"/></svg>
+            </button>
+            <p class="lohistus-kirjeldus info-sisu" id="info-kontroll">PR-kannete summad kuude kaupa</p>
+          </div>
           <ul class="faililoend" data-liik="kontroll" aria-label="Kontrollfailid"></ul>
-        </div>
+        </div>-->
       </div>
     </section>
 

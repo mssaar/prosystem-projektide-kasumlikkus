@@ -134,7 +134,29 @@ h2 { font-size: 1.15rem; font-weight: 650; }
 .peidetud-sisend { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 0; }
 .lohistus-ikoon { color: var(--aktsent); width: 1.4rem; height: 1.4rem; margin-bottom: 6px; }
 .lohistus-nimi { font-weight: 600; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.lohistus-kirjeldus { color: var(--tekst-2); font-size: 0.85rem; }
+
+/* Kirjeldus (kust faili saada) peidetud info-nupu taha: hover/fookus arvutis, klikk telefonis. */
+.ala { position: relative; }
+.info { position: absolute; top: 8px; right: 8px; z-index: 5; }
+.info-nupp { color: var(--tekst-2); }
+.info-nupp:hover, .info-nupp[aria-expanded="true"] { background: var(--aktsent-pind); color: var(--aktsent); }
+.info-nupp:focus-visible { outline: 2px solid var(--fookus); outline-offset: 1px; }
+.lohistus-kirjeldus {
+  display: none;
+  position: absolute; top: 100%; right: 0;
+  width: max-content; max-width: min(320px, calc(100vw - 32px));
+  margin-top: 6px; padding: 10px 12px;
+  border: 1px solid var(--joon); border-radius: var(--r);
+  background: var(--kaart); box-shadow: var(--vari);
+  color: var(--tekst); font-size: 0.85rem; line-height: 1.45; overflow-wrap: anywhere;
+}
+/* Nähtamatu sild nupu ja paneeli vahel, et hover ei katkeks. */
+.lohistus-kirjeldus::before { content: ""; position: absolute; inset: -8px 0 100% 0; }
+.info-nupp[aria-expanded="true"] + .lohistus-kirjeldus,
+.info-nupp:focus-visible + .lohistus-kirjeldus { display: block; }
+@media (hover: hover) {
+  .info:hover .lohistus-kirjeldus { display: block; }
+}
 .lohistus-tegevus { margin-top: 8px; font-size: 0.85rem; color: var(--tekst-2); }
 .lohistus-tegevus u { color: var(--aktsent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
 
@@ -436,9 +458,10 @@ h2.paneel-pealkiri { font-size: 1.15rem; font-weight: 650; }
   .linnuke { padding-block: 10px; }
   .projekt { padding-block: 10px; }
   .alad { gap: 10px; }
-  .lohistus { padding: 12px 14px; grid-template-columns: 1fr auto; column-gap: 12px; }
+  .lohistus { padding: 12px 58px 12px 14px; grid-template-columns: 1fr auto; column-gap: 12px; }
   .lohistus > span { grid-column: 1; }
-  .lohistus-ikoon { grid-column: 2; grid-row: 1 / 4; align-self: center; margin: 0; }
+  .lohistus-ikoon { grid-column: 2; grid-row: 1 / 3; align-self: center; margin: 0; }
+  .info { top: 6px; right: 6px; }
   .lohistus-tegevus { margin-top: 4px; }
   #ekspordi { width: 100%; }
 }

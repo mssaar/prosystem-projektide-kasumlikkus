@@ -383,6 +383,25 @@ function seoLohistus() {
   window.addEventListener('drop', (e) => e.preventDefault());
 }
 
+// Info-nupp: arvutis avaneb kirjeldus hoveriga (CSS), telefonis klikiga.
+function seoInfoNupud() {
+  const nupud = $$('.info-nupp');
+  const sulge = (va) => { for (const n of nupud) if (n !== va) n.setAttribute('aria-expanded', 'false'); };
+  for (const nupp of nupud) {
+    nupp.addEventListener('click', () => {
+      const lahti = nupp.getAttribute('aria-expanded') !== 'true';
+      sulge(nupp);
+      nupp.setAttribute('aria-expanded', String(lahti));
+    });
+  }
+  document.addEventListener('click', (e) => { if (!e.target.closest('.info')) sulge(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    sulge();
+    if (document.activeElement?.matches('.info-nupp')) document.activeElement.blur();
+  });
+}
+
 // ---------- Arvutamine ----------
 
 function valmis() {
@@ -843,6 +862,7 @@ function ekspordi() {
 function kaivita() {
   if (typeof XLSX === 'undefined') $('#teegi-viga').hidden = false;
   seoLohistus();
+  seoInfoNupud();
   seoSeaded();
   renderSeaded();
   renderArvutaNupp();
